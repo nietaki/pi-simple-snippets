@@ -1,6 +1,6 @@
 {
   "name": "pi-simple-snippets",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Expand %snippet markers in Pi prompts, complete snippet names in the native editor popup, and bind a shortcut that types %",
   "type": "module",
   "license": "MIT",
