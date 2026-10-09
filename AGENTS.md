@@ -46,7 +46,7 @@
   - `npm run check` — run the complete local gate.
 - Keep `npm run check` passing.
 - Before publishing or declaring packaging work complete, run `npm pack --dry-run` and inspect the file list.
-- Interactive terminal behavior that cannot be represented faithfully in Vitest must have a documented smoke-test procedure. Do not treat an automated fake as proof that a terminal, multiplexer, or keyboard protocol delivers a shortcut correctly.
+- Interactive terminal behavior that cannot be represented faithfully in Vitest must have a documented smoke-test procedure. Report that procedure in your response to the operator instead of writing it to any tracked file. Do not treat an automated fake as proof that a terminal, multiplexer, or keyboard protocol delivers a shortcut correctly.
 
 # Dependencies and npm
 
@@ -90,8 +90,9 @@ Keep it at the product and workflow level:
 - show a concise settings example;
 - summarize marker expansion, autocomplete, shortcut behavior, and major limitations;
 - provide development and release commands;
-- link to the detailed behavior contract;
-- list planned work until it is moved to GitHub issues.
+- link to the detailed behavior contract.
+
+Keep contributor and maintenance procedures out of the README.
 
 ## `docs/behavior.md`
 
@@ -112,7 +113,7 @@ Do not create a separate maintainer-reference document. Keep implementation-sens
 Update only the documentation layers affected by a change:
 
 1. update `docs/behavior.md` when observable behavior changes;
-2. update `README.md` when adoption, installation, compatibility, configuration, major capabilities, the initial user experience, or the planned-work list changes;
+2. update `README.md` when adoption, installation, compatibility, configuration, major capabilities, or the initial user experience changes;
 3. update code comments and compatibility tests when an implementation dependency, verification procedure, or upgrade risk changes.
 
 Verify examples against current behavior. Prefer links over maintaining equivalent explanations in multiple files.
