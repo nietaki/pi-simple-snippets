@@ -1,0 +1,56 @@
+{
+  "name": "pi-simple-snippets",
+  "version": "0.1.0",
+  "description": "Expand %snippet markers in Pi prompts, complete snippet names in the native editor popup, and bind a shortcut that types %",
+  "type": "module",
+  "license": "MIT",
+  "author": "nietaki",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "snippets",
+    "autocomplete",
+    "shortcuts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nietaki/pi-simple-snippets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nietaki/pi-simple-snippets/issues"
+  },
+  "homepage": "https://github.com/nietaki/pi-simple-snippets#readme",
+  "scripts": {
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run test && npm run typecheck",
+    "release": "release-it",
+    "release:dry-run": "release-it --dry-run",
+    "prepublishOnly": "npm run check"
+  },
+  "files": [
+    "src",
+    "docs",
+    "README.md"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^1.1.0",
+    "@earendil-works/pi-tui": "^1.1.0",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^5.0.3",
+    "release-it": "^21.0.3",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  }
+}

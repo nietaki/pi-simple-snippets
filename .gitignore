@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+dist/
+
+# Pack artifacts (`npm pack` output).
+*.tgz
+
+# One-off experiment scripts (AGENTS.md: never committed).
+scratch/
