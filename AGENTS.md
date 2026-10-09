@@ -106,7 +106,6 @@ Do not create a separate maintainer-reference document. Keep implementation-sens
 - use focused comments for lifecycle constraints, mirrored pi-tui behavior, provider chaining, TUI capture, focus detection, and terminal-input redispatch;
 - use tests to make compatibility assumptions and regression cases executable;
 - keep comments concise and explain why a non-obvious constraint exists rather than narrating the code;
-- keep planned work in the main README until it is moved to GitHub issues.
 
 ## Documentation changes
 

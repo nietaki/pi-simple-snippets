@@ -1,17 +1,11 @@
 # pi-simple-snippets
 
-`pi-simple-snippets` is a [Pi](https://github.com/earendil-works/pi) package for repeating
-yourself less. It expands configured `%snippet-name` markers when you submit a prompt,
-completes snippet names in Pi's own editor popup, and can bind a shortcut that types the
-`%` for you.
+`pi-simple-snippets` is a [Pi](https://github.com/earendil-works/pi) package for reusable
+prompt snippets. It expands configured `%snippet-name` markers when you submit a prompt,
+with built-in autocompletion shown after `%` is typed.
 
-It is a thin layer over text you already write: no separate snippet files, no custom
-popup, no model call. One line of JSON turns `%use-mcp` into the paragraph you keep
-typing.
-
-> **Status:** 0.x. The expansion, completion, and shortcut behavior are implemented,
-> tested, and verified against Pi 1.1.0. Placeholder editing, per-project snippet files,
-> and snippet management commands are not implemented — see [Planned work](#planned-work).
+It's deliberately simple - there's no extra dotfiles to maintain, just another entry
+in your `pi`'s `settings.json`.
 
 ## What it does
 
@@ -25,6 +19,14 @@ typing.
 - **Optionally binds a shortcut.** A configured key combo such as `ctrl+shift+s` types a
   literal `%` — but only while the editor owns focus, never into a `/model` or
   `/settings` picker.
+
+## Motivation
+
+Prompt templates are cornerstones of many workflows, but offer limited configurability -
+you keep the template's general structure and optionally inject some more information into it.
+
+What I needed was a way to type my own multiline prompt while having the option to insert
+some of the phrases I use to steer the agent without having to type them out every time.
 
 ## Install
 
@@ -138,44 +140,6 @@ contents with `npm pack --dry-run`. It publishes nothing and needs no secrets. T
 no production dependencies — the Pi packages are peers — so `npm audit --omit=dev` is
 clean; any advisory can only come from the development toolchain.
 
-### Verifying in a real terminal
-
-Some behavior cannot be reproduced faithfully against a fake TUI. Run this matrix in a
-real interactive session after any change to the shortcut guard, widget placement, or
-trigger handling, and after every Pi upgrade:
-
-1. Submit `%use-mcp` — the model receives the expanded text; submit `%undefined` and it
-   arrives literally.
-2. Type a bare `%` — the native popup lists every snippet; `Esc` dismisses it without
-   touching the text.
-3. Press the configured shortcut — the popup opens as if `%` had been typed. Confirm the
-   combo actually reaches Pi through your terminal (a Kitty keyboard protocol terminal
-   distinguishes `ctrl+shift+s` from `ctrl+s`) and through any multiplexer or window
-   manager keymap.
-4. Focus a selector (`/model`, `/settings`, session or tree picker) and press the
-   shortcut — the key must reach the picker untouched, not type `%`.
-5. Check there is no blank row above or below the editor (the capture widget renders zero
-   lines and must stay invisible).
-6. `/new`, `/resume`, `/fork`, and `/reload` — completion and the shortcut must still work
-   afterwards, each exactly once (no duplicated popup entries, no double `%`).
-7. Edit `settings.json` and `/reload` — the new snippets take effect; a broken entry
-   produces exactly one warning at session start.
-
-### Verifying a Pi upgrade
-
-The locked dev versions are what the suite ran against when it was written. After raising
-them:
-
-1. `npm run check` — the compatibility canary pins pi-tui's boundary patterns, the editor
-   method fingerprint, and Pi's session-UI reset, so drift fails here first.
-2. Re-confirm the mirror itself is still what Pi does, not merely self-consistent:
-   `rg -n "autocompleteTokenStartSource|autocompleteBoundaryRegex|cjkPunctuationRegex"
-   node_modules/@earendil-works/pi-tui/dist/utils.js node_modules/@earendil-works/pi-tui/dist/components/editor.js`
-3. Run the terminal matrix above — the fake `TUI` cannot prove focus or key delivery.
-
-Update `src/patterns.ts` and the pinned strings in `test/pi-compatibility.test.ts` in the
-same commit, so the mirror and its guard never disagree.
-
 ### Releasing
 
 Releases are run locally with [release-it](https://github.com/release-it/release-it).
@@ -195,37 +159,9 @@ npm run release
 npm run release -- patch
 ```
 
-The initial `0.1.0` version is already recorded in `package.json` but has not been
-published. Release that existing version explicitly, allowing npm's version command to
-accept it unchanged:
-
-```sh
-npm run release:dry-run -- 0.1.0 --npm.allowSameVersion
-npm run release -- 0.1.0 --npm.allowSameVersion
-```
-
-After `0.1.0`, use the normal interactive or named-increment commands above.
-
-Keep notable changes curated under `[Unreleased]` in
-[`CHANGELOG.md`](CHANGELOG.md). The release fails if that section has no entries. After
-the version is selected, the Keep a Changelog plugin turns it into a dated version
-section, creates a fresh `[Unreleased]` section, and updates the comparison links.
-
-The release runs `npm run check`, updates `package.json`, `package-lock.json`, and
-`CHANGELOG.md`, creates and pushes a `chore: release vX.Y.Z` commit and `vX.Y.Z` tag,
-and publishes to npm. `prepublishOnly` runs the checks again immediately before
-publication, so a direct `npm publish` stays protected too. This workflow does not
-create a GitHub Release.
-
 ## Planned work
 
-Moved to GitHub issues as they are filed.
-
-- A `/snippets` listing command.
-- Per-project snippet files that merge over the user namespace.
-- Per-snippet aliases or descriptions.
-- Placeholder editing inside snippet values.
-- Leaving markers inside fenced code blocks literal, if there is demand.
+- option to expand the snippet in-editor (as opposed to expanding it on-submit)
 
 ## Repository
 
