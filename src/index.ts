@@ -5,9 +5,9 @@
  * `%`-triggered snippet-name completion to Pi's native editor autocomplete popup, and
  * optionally binds a shortcut that types a literal `%` to open that popup.
  *
- * Configuration lives under the `pi-simple-snippets` key of Pi settings:
+ * Configuration lives under the `piSimpleSnippets` key of Pi settings:
  *
- *     "pi-simple-snippets": {
+ *     "piSimpleSnippets": {
  *       "shortcut": "ctrl+shift+s",
  *       "snippets": { "use-mcp": "Use your MCP tools to find the information" }
  *     }

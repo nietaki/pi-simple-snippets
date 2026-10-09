@@ -1,5 +1,5 @@
 /**
- * Reading and validating the `pi-simple-snippets` settings namespace.
+ * Reading and validating the `piSimpleSnippets` settings namespace.
  *
  * Pi declares no schema for extension settings: `settings-manager.js` deep-merges
  * unknown keys and writes them back untouched, so this namespace survives Pi's own

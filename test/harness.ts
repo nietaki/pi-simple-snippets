@@ -18,14 +18,14 @@ import piSimpleSnippets from "../src/index.ts";
 export const VALUE = "Use your MCP tools to find the information";
 
 export const GOOD_SETTINGS = {
-	"pi-simple-snippets": {
+	piSimpleSnippets: {
 		shortcut: "ctrl+shift+s",
 		snippets: { "use-mcp": VALUE, a: "AAA", b: "BBB" },
 	},
 };
 
 export const snippetSettings = (snippets: Record<string, string>, shortcut?: string) => ({
-	"pi-simple-snippets": shortcut === undefined ? { snippets } : { snippets, shortcut },
+	piSimpleSnippets: shortcut === undefined ? { snippets } : { snippets, shortcut },
 });
 
 type Handler = (event: any, ctx: any) => unknown;

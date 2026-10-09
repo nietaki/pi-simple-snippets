@@ -53,12 +53,12 @@ listener.
 
 ## Configure
 
-Under the `pi-simple-snippets` key of your user `~/.pi/agent/settings.json`, or a trusted
+Under the `piSimpleSnippets` key of your user `~/.pi/agent/settings.json`, or a trusted
 project's `.pi/settings.json`:
 
 ```json
 {
-  "pi-simple-snippets": {
+  "piSimpleSnippets": {
     "shortcut": "ctrl+shift+s",
     "snippets": {
       "use-mcp": "Use your MCP tools to find the information",

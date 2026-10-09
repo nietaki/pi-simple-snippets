@@ -39,7 +39,7 @@ describe("a well-formed namespace", () => {
 describe("malformed snippet entries are skipped, the rest still work", () => {
 	it("rejects names that cannot end a marker while accepting internal punctuation", async () => {
 		const { pi, s } = await boot({
-			"pi-simple-snippets": {
+			piSimpleSnippets: {
 				snippets: { "foo-": "dash", "foo.": "period", "foo_": "underscore", "foo-bar": "valid" },
 			},
 		});
@@ -57,7 +57,7 @@ describe("malformed snippet entries are skipped, the rest still work", () => {
 
 	it("keeps valid entries and summarizes exactly the invalid ones", async () => {
 		const { pi, s } = await boot({
-			"pi-simple-snippets": {
+			piSimpleSnippets: {
 				snippets: { Bad: "x", "ok-name": "Y", a: "", good: "G", "1num": "N", up: 42, deep: { k: "v" } },
 			},
 		});
@@ -82,12 +82,12 @@ describe("malformed snippet entries are skipped, the rest still work", () => {
 	});
 
 	it("uses the singular form for one skipped entry", async () => {
-		const { s } = await boot({ "pi-simple-snippets": { snippets: { Bad: "x", good: "G" } } });
+		const { s } = await boot({ piSimpleSnippets: { snippets: { Bad: "x", good: "G" } } });
 		expect(s.notices[0]).toContain("ignored 1 snippet entry");
 	});
 
 	it("ignores the whole snippets table when it is not an object", async () => {
-		const { pi, s } = await boot({ "pi-simple-snippets": { snippets: [1, 2], shortcut: "ctrl+%" } });
+		const { pi, s } = await boot({ piSimpleSnippets: { snippets: [1, 2], shortcut: "ctrl+%" } });
 		expect(s.notices[0]).toContain("`snippets` must be an object of name to text");
 		expect(pi.input("%a").action).toBe("continue");
 		// The shortcut is still usable: fields are validated independently.
@@ -104,12 +104,24 @@ describe("the namespace itself", () => {
 	});
 
 	it("warns and registers nothing when it is not an object", async () => {
-		const { pi, s } = await boot({ "pi-simple-snippets": "not-an-object" });
+		const { pi, s } = await boot({ piSimpleSnippets: "not-an-object" });
 		expect(s.notices).toHaveLength(1);
-		expect(s.notices[0]).toContain('"pi-simple-snippets" must be an object; ignoring the whole namespace');
+		expect(s.notices[0]).toContain('"piSimpleSnippets" must be an object; ignoring the whole namespace');
 		expect(pi.input("%a").action).toBe("continue");
 		expect(s.wrapperFactories).toHaveLength(0);
 		expect(s.listeners).toHaveLength(0);
+	});
+
+	it("ignores the hyphenated spelling so only the camelCase namespace is read", async () => {
+		// Pi deep-merges unknown settings keys verbatim, so a stale `pi-simple-snippets`
+		// block is silently inert rather than an error. The public namespace is exactly
+		// `piSimpleSnippets`, matching Pi's own camelCase setting keys.
+		const { pi, s } = await boot({ "pi-simple-snippets": { snippets: { a: "AAA" }, shortcut: "ctrl+shift+s" } });
+		expect(s.notices).toHaveLength(0);
+		expect(s.wrapperFactories).toHaveLength(0);
+		expect(s.widgets.size).toBe(0);
+		expect(s.listeners).toHaveLength(0);
+		expect(pi.input("%a").action).toBe("continue");
 	});
 
 	it("registers nothing for an empty snippets object", async () => {
@@ -127,7 +139,7 @@ describe("the namespace itself", () => {
 	});
 
 	it("registers no completion wrapper when only a shortcut is configured", async () => {
-		const { pi, s } = await boot({ "pi-simple-snippets": { shortcut: "ctrl+shift+s" } }, { focused: null });
+		const { pi, s } = await boot({ piSimpleSnippets: { shortcut: "ctrl+shift+s" } }, { focused: null });
 		expect(s.listeners).toHaveLength(1);
 		expect(s.wrapperFactories).toHaveLength(0);
 		expect(pi.input("%a").action).toBe("continue");
@@ -163,7 +175,7 @@ describe("shortcut validation", () => {
 
 	for (const [raw] of accepted) {
 		it(`accepts ${JSON.stringify(raw)}`, async () => {
-			const { s } = await boot({ "pi-simple-snippets": { shortcut: raw, snippets: { a: "AAA" } } }, { focused: null });
+			const { s } = await boot({ piSimpleSnippets: { shortcut: raw, snippets: { a: "AAA" } } }, { focused: null });
 			expect(s.listeners).toHaveLength(1);
 			expect(s.notices.filter((n) => n.includes("shortcut"))).toHaveLength(0);
 		});
@@ -171,19 +183,19 @@ describe("shortcut validation", () => {
 
 	for (const raw of rejected) {
 		it(`rejects ${JSON.stringify(raw)}`, async () => {
-			const { s } = await boot({ "pi-simple-snippets": { shortcut: raw, snippets: { a: "AAA" } } }, { focused: null });
+			const { s } = await boot({ piSimpleSnippets: { shortcut: raw, snippets: { a: "AAA" } } }, { focused: null });
 			expect(s.listeners).toHaveLength(0);
 			expect(s.notices.filter((n) => n.includes("shortcut"))).toHaveLength(1);
 		});
 	}
 
 	it("warns with the configured spelling and the rule", async () => {
-		const { s } = await boot({ "pi-simple-snippets": { shortcut: "s", snippets: { a: "AAA" } } });
+		const { s } = await boot({ piSimpleSnippets: { shortcut: "s", snippets: { a: "AAA" } } });
 		expect(s.notices[0]).toContain('`shortcut` "s" needs "mod[+mod]+key" with at least one modifier; ignoring it');
 	});
 
 	it("warns when shortcut is not a string", async () => {
-		const { s } = await boot({ "pi-simple-snippets": { shortcut: 7, snippets: { a: "AAA" } } });
+		const { s } = await boot({ piSimpleSnippets: { shortcut: 7, snippets: { a: "AAA" } } });
 		expect(s.notices[0]).toContain("`shortcut` must be a string");
 	});
 });
@@ -191,19 +203,19 @@ describe("shortcut validation", () => {
 describe("warnings surface once, only in TUI mode", () => {
 	it("summarizes several problems into one notification", async () => {
 		const { s } = await boot({
-			"pi-simple-snippets": { shortcut: "s", snippets: { Bad: "x" } },
+			piSimpleSnippets: { shortcut: "s", snippets: { Bad: "x" } },
 		});
 		expect(s.notices).toHaveLength(1);
 		expect(s.notices[0]).toContain("; ");
 	});
 
 	it("does not notify outside the TUI", async () => {
-		const { s } = await boot({ "pi-simple-snippets": { shortcut: "s", snippets: { Bad: "x" } } }, { mode: "print" });
+		const { s } = await boot({ piSimpleSnippets: { shortcut: "s", snippets: { Bad: "x" } } }, { mode: "print" });
 		expect(s.notices).toHaveLength(0);
 	});
 
 	it("a bare printable shortcut never installs, so it cannot swallow typing", async () => {
-		const { pi, s } = await boot({ "pi-simple-snippets": { shortcut: "%", snippets: { a: "AAA" } } }, { focused: null });
+		const { pi, s } = await boot({ piSimpleSnippets: { shortcut: "%", snippets: { a: "AAA" } } }, { focused: null });
 		expect(s.listeners).toHaveLength(0);
 		expect(pi.input("%a").text).toBe("AAA");
 	});

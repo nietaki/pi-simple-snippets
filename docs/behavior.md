@@ -8,13 +8,14 @@ Verified against Pi 1.1.0.
 
 ## Configuration
 
-All configuration lives under the `pi-simple-snippets` key of Pi settings: the user
+All configuration lives under the `piSimpleSnippets` key of Pi settings: the user
 `~/.pi/agent/settings.json`, or a project `.pi/settings.json` that Pi merges over the
-user value.
+user value. The key is lower camelCase, like Pi's own settings keys; the package name,
+notification prefix, and internal widget key keep the hyphenated npm spelling.
 
 ```json
 {
-  "pi-simple-snippets": {
+  "piSimpleSnippets": {
     "shortcut": "ctrl+shift+s",
     "snippets": {
       "use-mcp": "Use your MCP tools to find the information"
@@ -48,6 +49,9 @@ user value.
 - Notifications only appear in the interactive TUI. Other modes accept or reject the
   same configuration silently.
 - An absent namespace produces no notification at all.
+- Only `piSimpleSnippets` is read. Any other settings key — including a leftover
+  `pi-simple-snippets` block from an earlier draft of this package — is ignored silently
+  with no warning, so re-check the spelling when configuration appears to have no effect.
 
 ### Empty snippets and shortcut-only configuration
 

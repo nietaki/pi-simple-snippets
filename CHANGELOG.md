@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial implementation of snippet expansion, autocomplete, and the optional `%` shortcut.
+- Initial implementation of snippet expansion, autocomplete, and the optional `%`
+  shortcut, configured under the `piSimpleSnippets` key of Pi settings.
 
 [Unreleased]: https://github.com/nietaki/pi-simple-snippets/commits/master

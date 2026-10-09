@@ -16,7 +16,7 @@
 
 # Public behavior and compatibility
 
-- Configuration lives under the `pi-simple-snippets` settings key. Preserve compatibility with existing user settings unless a migration is explicitly agreed.
+- Configuration lives under the `piSimpleSnippets` settings key, camelCase like Pi's own settings keys. Preserve compatibility with existing user settings unless a migration is explicitly agreed.
 - Expansion is a single left-to-right pass. Inserted snippet values are not recursively expanded.
 - Unknown markers stay unchanged. Escaping, name parsing, trailing punctuation, wrappers, whitespace, line boundaries, and CJK punctuation are part of the observable contract.
 - Autocomplete must wrap and delegate to the provider it receives. Requests and completion items not owned by this extension must continue to work.
