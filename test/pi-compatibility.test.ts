@@ -1,18 +1,20 @@
 /**
  * Compatibility canary.
  *
- * Three Pi behaviors are mirrored rather than imported, because pi-tui does not
+ * Four Pi behaviors are mirrored rather than imported, because pi-tui does not
  * re-export them from its package root, and each one silently breaks completion or the
  * shortcut guard when Pi changes:
  *
  * 1. the marker boundary rule, mirrored into `src/index.ts`;
  * 2. the editor method fingerprint that separates Pi's editor from its selectors;
  * 3. `resetExtensionUI()` clearing extension autocomplete wrappers and terminal-input
- *    listeners, which is why registration happens per session-start generation.
+ *    listeners, which is why registration happens per session-start generation;
+ * 4. the editor replacing its whole line and cursor state with a provider's completion
+ *    result, which is what lets one completion insert several lines.
  *
  * Part 1 pins pi-tui 1.1.0's own pattern sources and compares them against the
  * installed package, then checks the extension behaves the same way as those live
- * regexes on a boundary corpus. Parts 2 and 3 check the structural assumptions against
+ * regexes on a boundary corpus. Parts 2 through 5 check the structural assumptions against
  * the installed sources. All of it is expected to start failing on a Pi upgrade — that
  * is the canary working: re-verify the assumptions and update the mirror deliberately,
  * never by deleting the test.
@@ -253,5 +255,25 @@ describe("4. the session UI reset the lifecycle depends on", () => {
 		const start = declaration.indexOf("export interface TUI");
 		const end = declaration.indexOf("export interface", start + 10);
 		expect(declaration.slice(start, end)).not.toContain("getFocusedComponent");
+	});
+});
+
+describe("5. the editor applies a provider completion result as full state", () => {
+	// `expandOnCompletion` can return more lines than it was given. That is safe only
+	// because pi-tui replaces the whole editor state with the provider result instead of
+	// splicing the token into one line. If a release moved to single-line splicing, a
+	// multiline completion would silently lose its extra lines, and this pin is what
+	// reports it. The line-ending rule is pinned alongside it because the provider
+	// normalizes `CRLF`/`CR` to match what the editor accepts for typed and pasted text.
+	const editor = () => packageFile("@earendil-works/pi-tui", "dist/components/editor.js");
+
+	it("the completion result replaces lines and moves the cursor line", () => {
+		const text = editor();
+		expect(text).toContain("this.state.lines = result.lines;");
+		expect(text).toContain("this.state.cursorLine = result.cursorLine;");
+	});
+
+	it("typed and pasted text is still normalized on the same line endings", () => {
+		expect(editor()).toContain('return text.replace(/\\r\\n/g, "\\n").replace(/\\r/g, "\\n")');
 	});
 });

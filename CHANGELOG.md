@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `piSimpleSnippets.expandOnCompletion` (off by default): accepting a snippet completion
+  inserts the snippet's text instead of its `%name` marker, so you can read and edit it
+  before submitting. Multiline values are inserted across lines with the cursor after them,
+  surrounding text is preserved, and submit-time expansion keeps working unchanged.
+
 ## [0.1.2] - 2026-10-09
 
 ### Changed
