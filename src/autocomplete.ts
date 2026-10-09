@@ -47,6 +47,49 @@ function preview(value: string): string {
 	return `${Array.from(collapsed).slice(0, MAX_PREVIEW_CHARS - 1).join("")}…`;
 }
 
+/**
+ * Resolve the text an owned item inserts: the marker itself, or — when
+ * `expandOnCompletion` is on — the snippet's configured value. `undefined` means the
+ * served item no longer maps to a configured snippet (a reload changed settings between
+ * suggestion and acceptance), so the caller delegates instead of inserting nothing.
+ * Every owned item value is `%name`, which is what the lookup key is built from.
+ *
+ * Item values stay markers even when the setting is on: labels, prefixes, previews, fuzzy
+ * matching, and the ownership check in `served` are all built on them.
+ */
+function resolveItemText(marker: string, config: SnippetConfig): string | undefined {
+	if (!config.expandOnCompletion) return marker;
+	return config.lookup.get(marker.slice(TRIGGER.length));
+}
+
+/**
+ * Replace the active token with `text`, which may be multiline.
+ *
+ * Pi's editor holds its lines as logical lines and normalizes typed/pasted `CRLF` and `CR`
+ * to `\n` (`editor.js:954`), while a settings value can carry either. Splitting on
+ * normalized line endings is therefore the minimum needed to hand back well-formed lines.
+ * Other whitespace is kept as configured, unlike typing, so the same snippet inserts the
+ * same text through completion and through submission.
+ */
+function insertValue(
+	before: string,
+	after: string,
+	text: string,
+): { lines: string[]; cursorCol: number } {
+	const parts = text.replace(/\r\n?/gu, "\n").split("\n");
+	const last = parts[parts.length - 1];
+	const lines = parts.map((part, index) => {
+		const head = index === 0 ? before : "";
+		const tail = index === parts.length - 1 ? after : "";
+		return `${head}${part}${tail}`;
+	});
+	return {
+		lines,
+		// Only a single-line insert shares its line with the text before the token.
+		cursorCol: parts.length === 1 ? before.length + last.length : last.length,
+	};
+}
+
 export function createSnippetProvider(
 	previous: AutocompleteProvider,
 	getConfig: () => SnippetConfig,
@@ -100,11 +143,17 @@ export function createSnippetProvider(
 			if (start < 0 || currentLine.slice(start, cursorCol) !== prefix) {
 				return previous.applyCompletion(lines, cursorLine, cursorCol, item, prefix);
 			}
+			const text = resolveItemText(item.value, getConfig());
+			if (text === undefined) {
+				return previous.applyCompletion(lines, cursorLine, cursorCol, item, prefix);
+			}
 			// Replace only the active token; text after the cursor is preserved.
-			const newLines = [...lines];
-			newLines[cursorLine] =
-				currentLine.slice(0, start) + item.value + currentLine.slice(cursorCol);
-			return { lines: newLines, cursorLine, cursorCol: start + item.value.length };
+			const inserted = insertValue(currentLine.slice(0, start), currentLine.slice(cursorCol), text);
+			return {
+				lines: [...lines.slice(0, cursorLine), ...inserted.lines, ...lines.slice(cursorLine + 1)],
+				cursorLine: cursorLine + inserted.lines.length - 1,
+				cursorCol: inserted.cursorCol,
+			};
 		},
 
 		// The editor consults this only for forced completion (`editor.js:1916-1921`),

@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 
+import { loadConfig } from "../src/config.ts";
 import { FakePi, VALUE, GOOD_SETTINGS, makeCtx, snippetSettings } from "./harness.ts";
 
 /** Register, start a session with `settings`, and return the extension plus its ctx. */
@@ -197,6 +198,70 @@ describe("shortcut validation", () => {
 	it("warns when shortcut is not a string", async () => {
 		const { s } = await boot({ piSimpleSnippets: { shortcut: 7, snippets: { a: "AAA" } } });
 		expect(s.notices[0]).toContain("`shortcut` must be a string");
+	});
+});
+
+describe("expandOnCompletion validation", () => {
+	// `loadConfig` is the config module's public surface; the flag's user-visible effect
+	// belongs to completion application and is covered in test/autocomplete.test.ts.
+	const load = (expandOnCompletion?: unknown) =>
+		loadConfig({ piSimpleSnippets: { snippets: { a: "AAA" }, expandOnCompletion } });
+
+	it("defaults to false when absent", () => {
+		expect(load(undefined).expandOnCompletion).toBe(false);
+		expect(load(undefined).warnings).toStrictEqual([]);
+		expect(loadConfig({}).expandOnCompletion).toBe(false);
+	});
+
+	it("accepts booleans unchanged", () => {
+		expect(load(true).expandOnCompletion).toBe(true);
+		expect(load(true).warnings).toStrictEqual([]);
+		expect(load(false).expandOnCompletion).toBe(false);
+		expect(load(false).warnings).toStrictEqual([]);
+	});
+
+	for (const [label, raw] of [
+		['the string "true"', "true"],
+		["a number", 1],
+		["null", null],
+		["an object", { enabled: true }],
+		["an array", [true]],
+	] as Array<[string, unknown]>) {
+		it(`warns and falls back to false for ${label}`, () => {
+			const config = load(raw);
+			expect(config.expandOnCompletion).toBe(false);
+			expect(config.warnings).toStrictEqual(["`expandOnCompletion` must be a boolean; ignoring it"]);
+		});
+	}
+
+	it("keeps independently valid settings when the flag is malformed", () => {
+		const config = loadConfig({
+			piSimpleSnippets: { snippets: { a: "AAA", Bad: "x" }, shortcut: "ctrl+shift+s", expandOnCompletion: "yes" },
+		});
+		expect(config.expandOnCompletion).toBe(false);
+		expect(config.shortcut).toBe("ctrl+shift+s");
+		expect(config.snippets.map((snippet) => snippet.name)).toStrictEqual(["a"]);
+		expect(config.warnings).toHaveLength(2);
+	});
+
+	it("is summarized into the one warning notification like any other field", async () => {
+		const pi = FakePi.register({
+			piSimpleSnippets: { snippets: { a: "AAA" }, shortcut: "s", expandOnCompletion: "yes" },
+		});
+		const s = makeCtx();
+		await pi.start(s.ctx);
+		expect(s.notices).toHaveLength(1);
+		expect(s.notices[0]).toContain("; ");
+		expect(s.notices[0]).toContain("`expandOnCompletion` must be a boolean; ignoring it");
+		expect(s.notices[0]).toContain('`shortcut` "s" needs');
+	});
+
+	it("stays silent and inert in a non-TUI mode", async () => {
+		const pi = FakePi.register({ piSimpleSnippets: { snippets: { a: "AAA" }, expandOnCompletion: 7 } });
+		const s = makeCtx({ mode: "print" });
+		await pi.start(s.ctx);
+		expect(s.notices).toHaveLength(0);
+		expect(pi.input("%a").text).toBe("AAA");
 	});
 });
 

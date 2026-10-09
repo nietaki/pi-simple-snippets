@@ -24,6 +24,11 @@ export interface SnippetConfig {
 	lookup: Map<string, string>;
 	/** Normalized key identifier, or undefined when no usable shortcut is configured. */
 	shortcut: string | undefined;
+	/**
+	 * Accepting one of this extension's completions inserts the configured value instead
+	 * of the marker. Opt-in; submission expansion is unaffected either way.
+	 */
+	expandOnCompletion: boolean;
 	/** Problems found while validating, summarized into one notification. */
 	warnings: string[];
 }
@@ -32,6 +37,7 @@ export const EMPTY_CONFIG: SnippetConfig = {
 	snippets: [],
 	lookup: new Map(),
 	shortcut: undefined,
+	expandOnCompletion: false,
 	warnings: [],
 };
 
@@ -120,6 +126,17 @@ export function loadConfig(settings: unknown): SnippetConfig {
 		}
 	}
 
+	// Expand-on-completion: absent is fine, a non-boolean is a warning and stays false.
+	let expandOnCompletion = false;
+	const rawExpand = fields.expandOnCompletion;
+	if (rawExpand !== undefined) {
+		if (typeof rawExpand === "boolean") {
+			expandOnCompletion = rawExpand;
+		} else {
+			warnings.push("`expandOnCompletion` must be a boolean; ignoring it");
+		}
+	}
+
 	// Snippets: malformed entries are skipped, the rest still work.
 	const snippets: Snippet[] = [];
 	const skipped: string[] = [];
@@ -153,6 +170,7 @@ export function loadConfig(settings: unknown): SnippetConfig {
 		snippets,
 		lookup: new Map(snippets.map((snippet) => [snippet.name, snippet.value])),
 		shortcut,
+		expandOnCompletion,
 		warnings,
 	};
 }
