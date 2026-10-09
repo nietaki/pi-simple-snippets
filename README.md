@@ -144,6 +144,42 @@ focus guard, and session lifecycle the extension has already been verified to ha
 refactor or a Pi upgrade shows up as a failing assertion rather than a dead shortcut.
 Coverage reports every `src` module including ones no test imports.
 
+### Manual smoke test
+
+The suite covers what a provider returns; it cannot prove that a real terminal delivers the
+acceptance key or that Pi's editor paints a multiline insert the way the cursor model
+expects. Run this after any change to completion, and before a release:
+
+1. Configure one single-line and one multiline snippet, with `expandOnCompletion` on:
+
+   ```json
+   {
+     "piSimpleSnippets": {
+       "expandOnCompletion": true,
+       "snippets": {
+         "one": "single line text",
+         "two": "first line\nsecond line\nthird line"
+       }
+     }
+   }
+   ```
+
+2. `/reload`, then type `%` in the editor and confirm the native popup lists both names with
+   their previews.
+3. Accept `%one` with `Tab`, then `%two` with `Enter`. Each should put the **text** in the
+   editor, not the marker; the multiline one should occupy three lines, with the cursor after
+   the last inserted line and any text you typed after the marker still there.
+4. Edit the inserted text freely — it is ordinary text, so editing, deleting, and undo work.
+5. Submit a value that contains another marker, for example a snippet whose text is
+   `Run %inner carefully` with `inner` also configured. Submitting expands `%inner`, because
+   completion inserts text and submission is a separate pass.
+6. Turn `expandOnCompletion` off, `/reload`, and accept a completion again: the marker should
+   be inserted, exactly as in earlier versions.
+
+With the setting off, also re-check the cases that must not have moved: `@file` completion,
+the `shortcut` popup trigger, and submit-time expansion in a non-TUI run
+(`pi --print "%one"`, where the model should receive `single line text`).
+
 CI is `.github/workflows/ci.yml`: on pull requests, pushes to `master`, and manual
 dispatch it installs with `npm ci`, runs `npm run check`, and verifies the tarball
 contents with `npm pack --dry-run`. It publishes nothing and needs no secrets. There are
@@ -171,8 +207,9 @@ npm run release -- patch
 
 ## Planned work
 
-Nothing scheduled. Open ideas live in
-[the issue tracker](https://github.com/nietaki/pi-simple-snippets/issues).
+Tracked in [the issue tracker](https://github.com/nietaki/pi-simple-snippets/issues). The
+former entry here, expanding the snippet in the editor instead of only on submit, is now
+the `expandOnCompletion` setting.
 
 ## Repository
 
