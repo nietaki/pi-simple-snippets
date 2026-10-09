@@ -33,6 +33,7 @@
   "files": [
     "src",
     "docs",
+    "CHANGELOG.md",
     "README.md"
   ],
   "pi": {
@@ -47,9 +48,10 @@
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^1.1.0",
     "@earendil-works/pi-tui": "^1.1.0",
+    "@release-it/keep-a-changelog": "^8.0.1",
     "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^5.0.3",
-    "release-it": "^21.0.3",
+    "release-it": "^21.1.1",
     "typescript": "^5.9.3",
     "vitest": "^5.0.3"
   }

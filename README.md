@@ -195,11 +195,27 @@ npm run release
 npm run release -- patch
 ```
 
-The release runs `npm run check`, updates `package.json` and `package-lock.json`, creates
-and pushes a `chore: release vX.Y.Z` commit and `vX.Y.Z` tag, and publishes to npm.
-`prepublishOnly` runs the checks again immediately before publication, so a direct
-`npm publish` stays protected too. This workflow does not create a GitHub Release and
-maintains no changelog — the tag history is the record.
+The initial `0.1.0` version is already recorded in `package.json` but has not been
+published. Release that existing version explicitly, allowing npm's version command to
+accept it unchanged:
+
+```sh
+npm run release:dry-run -- 0.1.0 --npm.allowSameVersion
+npm run release -- 0.1.0 --npm.allowSameVersion
+```
+
+After `0.1.0`, use the normal interactive or named-increment commands above.
+
+Keep notable changes curated under `[Unreleased]` in
+[`CHANGELOG.md`](CHANGELOG.md). The release fails if that section has no entries. After
+the version is selected, the Keep a Changelog plugin turns it into a dated version
+section, creates a fresh `[Unreleased]` section, and updates the comparison links.
+
+The release runs `npm run check`, updates `package.json`, `package-lock.json`, and
+`CHANGELOG.md`, creates and pushes a `chore: release vX.Y.Z` commit and `vX.Y.Z` tag,
+and publishes to npm. `prepublishOnly` runs the checks again immediately before
+publication, so a direct `npm publish` stays protected too. This workflow does not
+create a GitHub Release.
 
 ## Planned work
 
@@ -216,6 +232,7 @@ Moved to GitHub issues as they are filed.
 - Source: <https://github.com/nietaki/pi-simple-snippets>
 - Issues: <https://github.com/nietaki/pi-simple-snippets/issues>
 - [`docs/behavior.md`](docs/behavior.md) — the observable behavior contract
+- [`CHANGELOG.md`](CHANGELOG.md) — notable changes by release
 
 ## License
 

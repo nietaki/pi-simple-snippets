@@ -118,6 +118,13 @@ Update only the documentation layers affected by a change:
 
 Verify examples against current behavior. Prefer links over maintaining equivalent explanations in multiple files.
 
+## Changelog
+
+- Add each notable user-facing change to the `[Unreleased]` section of `CHANGELOG.md` in the same change that implements it.
+- Use the Keep a Changelog categories (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Security`) and describe outcomes for users rather than commit-level implementation details.
+- During development, do not replace `[Unreleased]` with a version or date and do not update release comparison links manually. The configured release-it plugin performs that mechanical finalization after the release version is selected.
+- Keep internal-only maintenance out of the changelog unless it materially affects package users, contributors, compatibility, or the release process.
+
 # CI and releases
 
 - Keep GitHub Actions read-only and minimal: install from the lockfile, run `npm run check`, and verify package contents with `npm pack --dry-run`.
