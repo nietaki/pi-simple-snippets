@@ -17,6 +17,7 @@ notification prefix, and internal widget key keep the hyphenated npm spelling.
 {
   "piSimpleSnippets": {
     "shortcut": "ctrl+shift+s",
+    "expandOnCompletion": false,
     "snippets": {
       "use-mcp": "Use your MCP tools to find the information"
     }
@@ -35,6 +36,11 @@ notification prefix, and internal widget key keep the hyphenated npm spelling.
     `esc`, `enter`, `return`, `tab`, `space`, `backspace`, `delete`, `insert`, `clear`,
     `home`, `end`, `pageup`, `pagedown`, `up`, `down`, `left`, `right`, `f1`–`f12`.
     Duplicate modifiers and unknown modifiers are rejected.
+- `expandOnCompletion` — optional, defaults to `false`. Accepting one of this extension's
+  completions inserts the snippet's **configured text** instead of its `%name` marker, so
+  you can inspect and edit it before submitting. Any other type is ignored with a warning
+  and behaves as `false`. It changes completion only, which exists only in the interactive
+  TUI: submission expansion stays enabled, in every mode, whether this is on or off.
 - Configuration is read on every `session_start` — startup, reload, new, resume, fork —
   which is how an edited `settings.json` takes effect after `/reload`.
 
@@ -44,6 +50,8 @@ notification prefix, and internal widget key keep the hyphenated npm spelling.
 - A rejected shortcut is ignored; snippets still work.
 - A `snippets` value that is not an object, or a namespace that is not an object,
   discards that part with a warning.
+- An `expandOnCompletion` that is not a boolean is ignored with a warning; snippets and
+  shortcut still work.
 - All problems found in one generation are summarized into **one** `warning`
   notification at session start, prefixed `pi-simple-snippets:`.
 - Notifications only appear in the interactive TUI. Other modes accept or reject the
@@ -132,6 +140,9 @@ and JSON modes, and steering or follow-up delivery. Arguments to an extension-re
 slash command are dispatched before input handlers run, so `/somecmd %use-mcp` keeps the
 marker literal.
 
+This is independent of `expandOnCompletion`, which only changes what accepting a completion
+puts into the editor.
+
 ## Autocomplete
 
 In the interactive TUI, `%query` at a boundary opens Pi's **native** editor popup with
@@ -152,7 +163,23 @@ acceptance, and `Esc` dismissal.
   already typed) finds nothing: the query keeps the punctuation, the name rule does not.
   Complete first, then type the punctuation.
 - Accepting a completion replaces only the active token. Text after the cursor is
-  preserved, and the cursor lands directly after the inserted name.
+  preserved, and the cursor lands directly after the inserted text.
+- By default the inserted text is the `%name` marker, which the next submission expands.
+  With `expandOnCompletion` it is the snippet's configured text. The popup itself does not
+  change: suggestions are still listed, labelled, previewed, filtered, and capped by name
+  and marker.
+- A configured multiline value is inserted across lines. `CRLF` and a lone `CR` in a
+  settings value become new lines, as they do for text you type or paste; every other
+  character is inserted exactly as configured, so the same snippet produces the same text
+  whether it arrived through completion or through submission. The cursor lands after the
+  last inserted line.
+- What completion inserts is ordinary editor text. It is not expanded again by the
+  completion itself, and nothing marks it as inserted: a `%name` inside it is visible, and
+  submitting the prompt runs the normal expansion pass over it. Inserted text is not
+  protected from that pass.
+- If a suggestion no longer maps to a configured snippet when you accept it — a `/reload`
+  changed settings in between — the keypress goes to the provider this extension wraps
+  instead of inserting nothing.
 - Items the wrapped provider produced are applied by that provider, not here.
 - `Tab` with exactly one remaining match is applied immediately without showing the list.
   That is Pi's existing behavior for every provider.

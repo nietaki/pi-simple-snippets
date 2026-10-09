@@ -16,6 +16,10 @@ in your `pi`'s `settings.json`.
   editor autocomplete lists matching snippets with one-line previews, fuzzy filtering,
   `Tab` acceptance, and `Esc` dismissal. `@file` and slash-command completion are
   untouched.
+- **Optionally expands as you complete.** With `expandOnCompletion` turned on, accepting a
+  snippet puts its full text in the editor instead of the marker, so you can read and edit
+  it before submitting. Multiline snippets land across lines. Off by default, and
+  submit-time expansion keeps working either way.
 - **Optionally binds a shortcut.** A configured key combo such as `ctrl+shift+s` types a
   literal `%` — but only while the editor owns focus, never into a `/model` or
   `/settings` picker.
@@ -62,6 +66,7 @@ project's `.pi/settings.json`:
 {
   "piSimpleSnippets": {
     "shortcut": "ctrl+shift+s",
+    "expandOnCompletion": true,
     "snippets": {
       "use-mcp": "Use your MCP tools to find the information",
       "tdd": "Write the failing test first, watch it fail, then implement the minimum to pass."
@@ -74,7 +79,8 @@ Then `/reload`. Names must match `[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?` (lowercase,
 starting and ending with a letter or digit; punctuation is allowed internally) and values
 must be non-empty strings; a malformed entry is skipped with one summarized warning, the
 rest still work. `shortcut` needs at least one modifier, so a bare printable key can never
-swallow ordinary typing.
+swallow ordinary typing. `expandOnCompletion` is optional and defaults to `false`; a
+non-boolean value is ignored with the same summarized warning.
 
 With no usable snippets, no completion provider is registered, preserving Pi's `%`
 completion. A configured valid shortcut is independent and may still install its TUI
@@ -98,6 +104,10 @@ survives, because a name has to end on a letter or digit.
 Type `%` alone to list everything, `%mc` to fuzzy-narrow, `Tab` to accept. Unknown
 markers are left untouched, so `git log --format=%h` is safe unless you configure a
 snippet named `h`. Type `%%use-mcp` when you genuinely want the literal `%use-mcp`.
+
+With `expandOnCompletion` on, that same `Tab` writes the text itself into the editor.
+Anything it contains, including another marker, is left as ordinary text you can edit, and
+the next submission expands it like usual.
 
 ## Compatibility notes
 
@@ -161,7 +171,8 @@ npm run release -- patch
 
 ## Planned work
 
-- option to expand the snippet in-editor (as opposed to expanding it on-submit)
+Nothing scheduled. Open ideas live in
+[the issue tracker](https://github.com/nietaki/pi-simple-snippets/issues).
 
 ## Repository
 
