@@ -1,6 +1,6 @@
 {
   "name": "pi-simple-snippets",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Expand %snippet markers in Pi prompts. Comes with built-in fuzzy-finder and trivial tweakability",
   "type": "module",
   "license": "MIT",

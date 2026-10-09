@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-10
+
 ### Added
 
 - `piSimpleSnippets.expandOnCompletion` (off by default): accepting a snippet completion
@@ -33,8 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial implementation of snippet expansion, autocomplete, and the optional `%`
   shortcut, configured under the `piSimpleSnippets` key of Pi settings.
 
-[Unreleased]: https://github.com/nietaki/pi-simple-snippets/compare/v0.1.2...master
+[Unreleased]: https://github.com/nietaki/pi-simple-snippets/compare/v0.2.0...master
 
+[0.2.0]: https://github.com/nietaki/pi-simple-snippets/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/nietaki/pi-simple-snippets/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/nietaki/pi-simple-snippets/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/nietaki/pi-simple-snippets/releases/tag/v0.1.0
